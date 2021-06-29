@@ -15,7 +15,7 @@ pip install -e .
 
 ## Usage
 
-For now, this is what it looks like to use. You have to reference a source file and a 'member' object that'll initialized `from_pretrained`. 
+For now, this is what it looks like to use. You have to reference a source file and a 'member' object that'll be initialized `from_pretrained`. 
 
 In the future, we won't need to do this, as we'll save this info in config.json.
 
