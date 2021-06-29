@@ -34,3 +34,4 @@ This way you won't have to point to member/entrypoint, but instead can just use 
 inspecting the class and its file in relation to the root of src.
 - Add ability to point to code stored on github as opposed to HF hub. i.e. similar to what `torchhub` does, but using model weights from HF hub.
 - Decide if we need to differentiate different types of objects for different use cases. I.e. should it be `AutoModel`, `AutoTransform`, etc?
+- Methods `from_hf_hub` and `from_github` likely will be confusing, and should probably be replaced with the usual `from_pretrained`. The config.json file on HF hub will tell us where to find source code if its available.
