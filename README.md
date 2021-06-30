@@ -17,7 +17,7 @@ pip install -e .
 
 Add `auto_anything.ModelHubMixin` to your torch module.
 
-```
+```python
 class Autoencoder(nn.Module, ModelHubMixin):
 
     def __init__(self, input_dim: int = 784, hidden_dims: Tuple[int] = (256, 64, 16, 4, 2)):
@@ -36,7 +36,7 @@ class Autoencoder(nn.Module, ModelHubMixin):
 
 Add `src_dir` kwarg pointing to root of your source code when calling `model.save_pretrained`. This will add it to your Huggingface Hub repo so it can be referenced later. You can also add `requirements`. If a user doesn't have the specified requirements when they go to try and initialize your object later, they'll recieve an error.
 
-```
+```python
 model.save_pretrained(
     'cool_model',
     src_dir="./src",
