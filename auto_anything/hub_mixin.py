@@ -2,17 +2,15 @@ import json
 import logging
 import os
 from pathlib import Path
-from typing import Dict, Optional, Union, List
-from pathlib import Path
 from shutil import copytree, ignore_patterns, rmtree
+from typing import Dict, List, Optional, Union
 
 import requests
-
 from huggingface_hub.constants import CONFIG_NAME, PYTORCH_WEIGHTS_NAME
-from huggingface_hub.file_download import cached_download, hf_hub_url, is_torch_available
+from huggingface_hub.file_download import (cached_download, hf_hub_url,
+                                           is_torch_available)
 from huggingface_hub.hf_api import HfApi, HfFolder
 from huggingface_hub.repository import Repository
-
 
 if is_torch_available():
     import torch
@@ -80,18 +78,18 @@ class ModelHubMixin:
                 # Copy source into hf_src of save_directory
                 src_dir = Path(src_dir)
                 assert src_dir.exists()
-                dest_dir = Path(save_directory) / 'hf_src'
-                dest_dir = dest_dir / src_dir.name if src_dir.name != '' else dest_dir
+                dest_dir = Path(save_directory) / "hf_src"
+                dest_dir = dest_dir / src_dir.name if src_dir.name != "" else dest_dir
                 if dest_dir.exists():
                     rmtree(dest_dir)
-                copytree(src_dir, dest_dir, ignore=ignore_patterns('*.pyc'))
+                copytree(src_dir, dest_dir, ignore=ignore_patterns("*.pyc"))
 
                 # Add module_name and member_name to config
-                config['_src'] = {'module_name': self.__module__, 'member_name': self.__class__.__qualname__}
+                config["_src"] = {"module_name": self.__module__, "member_name": self.__class__.__qualname__}
 
             requirements = [] if requirements is None else requirements
-            requirements_path = Path(save_directory) / 'requirements.txt'
-            requirements_path.write_text('\n'.join(requirements))
+            requirements_path = Path(save_directory) / "requirements.txt"
+            requirements_path.write_text("\n".join(requirements))
 
             path = os.path.join(save_directory, CONFIG_NAME)
             with open(path, "w") as f:
@@ -177,9 +175,7 @@ class ModelHubMixin:
             config_file = os.path.join(model_id, CONFIG_NAME)
         else:
             try:
-                config_url = hf_hub_url(
-                    model_id, filename=CONFIG_NAME, revision=revision
-                )
+                config_url = hf_hub_url(model_id, filename=CONFIG_NAME, revision=revision)
                 config_file = cached_download(
                     config_url,
                     cache_dir=cache_dir,
@@ -197,9 +193,7 @@ class ModelHubMixin:
             print("LOADING weights from local directory")
             model_file = os.path.join(model_id, PYTORCH_WEIGHTS_NAME)
         else:
-            model_url = hf_hub_url(
-                model_id, filename=PYTORCH_WEIGHTS_NAME, revision=revision
-            )
+            model_url = hf_hub_url(model_id, filename=PYTORCH_WEIGHTS_NAME, revision=revision)
             model_file = cached_download(
                 model_url,
                 cache_dir=cache_dir,
@@ -213,10 +207,10 @@ class ModelHubMixin:
         if config_file is not None:
             with open(config_file, "r", encoding="utf-8") as f:
                 config = json.load(f)
-            
-            if '_src' in config:
+
+            if "_src" in config:
                 # pop off module name and member name
-                _src = config.pop('_src')
+                _src = config.pop("_src")
 
             model_kwargs.update(**config)
 
@@ -281,9 +275,7 @@ class ModelHubMixin:
         """
 
         if repo_path_or_name is None and repo_url is None:
-            raise ValueError(
-                "You need to specify a `repo_path_or_name` or a `repo_url`."
-            )
+            raise ValueError("You need to specify a `repo_path_or_name` or a `repo_url`.")
 
         if use_auth_token is None and repo_url is None:
             token = HfFolder.get_token()

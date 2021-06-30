@@ -1,6 +1,7 @@
 from pathlib import Path
-from pkg_resources import parse_requirements, require, DistributionNotFound
 from typing import List
+
+from pkg_resources import DistributionNotFound, parse_requirements, require
 
 
 class MissingRequirementsError(Exception):
@@ -8,7 +9,7 @@ class MissingRequirementsError(Exception):
 
     def __init__(self, missing: List[str]):
         self.missing = missing
-        self.message = '\n\nMissing the following requirements:\n  - ' + '\n  - '.join(self.missing)
+        self.message = "\n\nMissing the following requirements:\n  - " + "\n  - ".join(self.missing)
         super().__init__(self.message)
 
 

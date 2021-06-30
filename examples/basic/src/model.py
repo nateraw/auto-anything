@@ -1,13 +1,13 @@
 from argparse import Namespace
-from typing import Union, List, Tuple
+from typing import List, Tuple, Union
 
 import torch.nn.functional as F
-from auto_anything import ModelHubMixin
 from torch import nn
+
+from auto_anything import ModelHubMixin
 
 
 class Dense(nn.Module):
-
     def __init__(self, input_dim, output_dim, bias=True, activation=nn.LeakyReLU, **kwargs):
         super().__init__()
         self.fc = nn.Linear(input_dim, output_dim, bias=bias)
@@ -26,8 +26,9 @@ class Encoder(nn.Module):
         super().__init__()
         dims = (input_dim,) + dims
         self.layers = nn.Sequential(
-            *[Dense(dims[i], dims[i+1], negative_slope=0.4, inplace=True) for i in range(len(dims) - 1)]
+            *[Dense(dims[i], dims[i + 1], negative_slope=0.4, inplace=True) for i in range(len(dims) - 1)]
         )
+
     def forward(self, x):
         return self.layers(x)
 
@@ -39,12 +40,12 @@ class Decoder(nn.Module):
             *[Dense(dims[i], dims[i + 1], negative_slope=0.4, inplace=True) for i in range(len(dims) - 1)]
             + [Dense(dims[-1], output_dim, activation=nn.Sigmoid)]
         )
+
     def forward(self, x):
         return self.layers(x)
 
 
 class Autoencoder(nn.Module, ModelHubMixin):
-
     def __init__(self, input_dim: int = 784, hidden_dims: Tuple[int] = (256, 64, 16, 4, 2)):
         super().__init__()
         self.config = Namespace(input_dim=input_dim, hidden_dims=hidden_dims)
@@ -57,9 +58,3 @@ class Autoencoder(nn.Module, ModelHubMixin):
         recon = self.decoder(latent)
         loss = F.mse_loss(recon, x)
         return recon, latent, loss
-
-    # def save_pretrained(self, save_directory, **kwargs):
-    #     # assert 'config' not in kwargs, \
-    #         # "save_pretrained handles passing model config for you, please dont pass it"
-    #     super().save_pretrained(save_directory, config=self.config.__dict__, **kwargs)
-    #     # super().save_pretrained(save_directory, **kwargs)
