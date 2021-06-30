@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytorch_lightning as pl
 import torch
 from huggingface_hub import HfApi, HfFolder, Repository
@@ -50,7 +52,11 @@ if __name__ == "__main__":
     )
 
     # Save model weights and code to local repo
-    model.save_pretrained(model_repo.local_dir, src_dir="./src")
+    model.save_pretrained(
+        model_repo.local_dir,
+        src_dir="./src",
+        requirements=[x for x in Path('./requirements.txt').read_text().split('\n') if x != 'pytorch-lightning']
+    )
 
     # Push!
     commit_url = model_repo.push_to_hub()

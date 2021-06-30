@@ -1,3 +1,5 @@
 huggingface-hub
 torch
 torchvision
+pytorch-lightning
+auto_anything
