@@ -1,3 +1,5 @@
+import importlib
+import json
 import sys
 from pathlib import Path
 
@@ -12,40 +14,25 @@ class AutoAnything:
         raise RuntimeError("Don't use __init__ of AutoAnything. Use from_hf_hub or from_github instead")
 
     @classmethod
-    def from_hf_hub(cls, namespace, entrypoint='model.py', member='MessageModel', **kwargs):
-        """Initialize pretrained model object using weights + code from the hub.
-
-        TODO - Update HF Model Mixin to handle saving source code when calling save_pretrained().
-        This way you won't have to point to member/entrypoint, but instead can just use ref by
-        inspecting the class and its file in relation to the root of src.
-
-        Args:
-            namespace (str): HF model repo reference namespace. Example: 'nateraw/dummy'.
-            entrypoint (str, optional): Entrypoint file we'll import as a module. Defaults to 'model.py'.
-            member (str, optional): Name of the object member of the entrypoint module. Defaults to 'MessageModel'.
-
-        Returns:
-            Any: Object initialized from_pretrained. Often a model, but can be basically any object.
-        """
+    def from_pretrained(cls, namespace):
         cached_path = Path(snapshot_download(namespace))
         requirements_path = Path(cached_path) / 'requirements.txt'
         check_requirements(requirements_path)
 
-        assert (cached_path / entrypoint).exists()
-        sys.path.append(str(cached_path))
+        config_path = cached_path / 'config.json'
+        assert config_path.exists()
 
-        # TODO - this won't work if entrypoint isn't at top level of hub repo
-        module = __import__(Path(entrypoint).stem)
+        with config_path.open(encoding='utf-8') as f:
+            config = json.load(f)
 
-        # My thought here is what if you add multiple to path...the __import__ would get all wonky.
-        sys.path.remove(str(cached_path))
+        if '_src' in config:
+            _src = config.pop('_src')
+            module_name = _src['module_name']
+            member_name = _src['member_name']
 
+        sys.path.append(str(cached_path / 'hf_src'))
+        module = importlib.import_module(module_name)
+        sys.path.remove(str(cached_path / 'hf_src'))
+        member = getattr(module, member_name)
 
-        # What to do here???
-
-        # return module
-        return getattr(module, member).from_pretrained(str(cached_path), **kwargs)
-
-    def from_github(self, namespace):
-        '''TODO'''
-        raise NotImplementedError()
+        return member.from_pretrained(str(cached_path))
